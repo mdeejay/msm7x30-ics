@@ -31,10 +31,17 @@
 #include <linux/major.h>
 
 #include "kgsl.h"
-
+#include "kgsl_mmu.h"
+#include "adreno.h"
+#include "z180.h"
+#include "adreno_debugfs.h"
 #include "kgsl_debugfs.h"
 #include "kgsl_cffdump.h"
 #include "adreno_ringbuffer.h"
+
+#include "kgsl_log.h"
+#include "kgsl_drm.h"
+#include "kgsl_cffdump.h"
 
 #undef MODULE_PARAM_PREFIX
 #define MODULE_PARAM_PREFIX "kgsl."
@@ -243,7 +250,7 @@ static void kgsl_memqueue_freememontimestamp(struct kgsl_device *device,
 static void kgsl_memqueue_drain(struct kgsl_device *device)
 {
 	struct kgsl_mem_entry *entry, *entry_tmp;
-	struct kgsl_event *event, *event_tmp;
+	//struct kgsl_event *event, *event_tmp;
 	uint32_t ts_processed;
 
 	BUG_ON(!mutex_is_locked(&device->mutex));
