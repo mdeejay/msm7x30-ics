@@ -80,8 +80,6 @@ do { \
 } while (0)
 #define BITS_PER_PIXEL(info) (info->fb->var.bits_per_pixel)
 #define BYTES_PER_PIXEL(info) (info->fb->var.bits_per_pixel >> 3)
-int msmfb_overlay_enable=1;
-int first_overlay_set = 0;
 static int msmfb_debug_mask;
 module_param_named(msmfb_debug_mask, msmfb_debug_mask, int,
 		   S_IRUGO | S_IWUSR | S_IWGRP);
@@ -90,7 +88,6 @@ struct mdp_device *mdp;
 #ifdef CONFIG_FB_MSM_OVERLAY
 static atomic_t mdpclk_on = ATOMIC_INIT(1);
 #endif
-DECLARE_MUTEX(ov_semaphore);
 
 struct msmfb_info {
 	struct fb_info *fb;
