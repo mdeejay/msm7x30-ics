@@ -1134,31 +1134,21 @@ static void setup_fb_info(struct msmfb_info *msmfb)
 
 	fb_info->fix.type = FB_TYPE_PACKED_PIXELS;
 	fb_info->fix.visual = FB_VISUAL_TRUECOLOR;
-	fb_info->fix.line_length = ALIGN(msmfb->xres, 32) * 3;
+	fb_info->fix.line_length = ALIGN(msmfb->xres, 32) * 2;
 
 	fb_info->var.xres = msmfb->xres;
 	fb_info->var.yres = msmfb->yres;
 	fb_info->var.width = msmfb->panel->fb_data->width;
 	fb_info->var.height = msmfb->panel->fb_data->height;
-	fb_info->var.xres_virtual = ALIGN(msmfb->xres, 32);
-	fb_info->var.yres_virtual = msmfb->yres * 3;
+	fb_info->var.xres_virtual = msmfb->xres;
+	fb_info->var.yres_virtual = msmfb->yres;
 	fb_info->var.bits_per_pixel = BITS_PER_PIXEL_DEF;
 	fb_info->var.accel_flags = 0;
 
 	fb_info->var.yoffset = 0;
 
 	if (msmfb->panel->caps & MSMFB_CAP_PARTIAL_UPDATES) {
-		/* set the param in the fixed screen, so userspace can't
-		 * change it. This will be used to check for the
-		 * capability. */
 
-		/* FIX ME: every panel support partial update?
-		fb_info->fix.reserved[0] = 0x5444;
-		fb_info->fix.reserved[1] = 0x5055;
-		*/
-
-		/* This preloads the value so that if userspace doesn't
-		 * change it, it will be a full update */
 		fb_info->var.reserved[0] = 0x54445055;
 		fb_info->var.reserved[1] = 0;
 		fb_info->var.reserved[2] = (uint16_t)msmfb->xres |
@@ -1199,7 +1189,7 @@ static int setup_fbmem(struct msmfb_info *msmfb, struct platform_device *pdev)
 	struct fb_info *fb = msmfb->fb;
 	struct resource *resource;
 	unsigned long size = msmfb->xres * msmfb->yres *
-		BYTES_PER_PIXEL(msmfb) * 3;
+		BYTES_PER_PIXEL(msmfb) * 3; /* prim = 800 x 480 x 4(bpp) x 3(pages) */
 	unsigned long resource_size;
 	unsigned char *fbram;
 
