@@ -49,6 +49,10 @@ static void msmfb_resume(struct work_struct *work);
 extern int load_565rle_image(char *filename);
 #endif
 
+#ifdef CONFIG_FB_MSM_TRIPLE_BUFFER
+#define MSM_FB_NUM	3
+#endif
+
 #define PRINT_FPS 0
 #define PRINT_BLIT_TIME 0
 
@@ -76,6 +80,8 @@ do { \
 } while (0)
 #define BITS_PER_PIXEL(info) (info->fb->var.bits_per_pixel)
 #define BYTES_PER_PIXEL(info) (info->fb->var.bits_per_pixel >> 3)
+int msmfb_overlay_enable=1;
+int first_overlay_set = 0;
 static int msmfb_debug_mask;
 module_param_named(msmfb_debug_mask, msmfb_debug_mask, int,
 		   S_IRUGO | S_IWUSR | S_IWGRP);
@@ -84,6 +90,7 @@ struct mdp_device *mdp;
 #ifdef CONFIG_FB_MSM_OVERLAY
 static atomic_t mdpclk_on = ATOMIC_INIT(1);
 #endif
+DECLARE_MUTEX(ov_semaphore);
 
 struct msmfb_info {
 	struct fb_info *fb;
@@ -1124,20 +1131,20 @@ static void setup_fb_info(struct msmfb_info *msmfb)
 	/* finish setting up the fb_info struct */
 	strncpy(fb_info->fix.id, "msmfb", 16);
 	fb_info->fix.ypanstep = 1;
-        
+
 	fb_info->fbops = &msmfb_ops;
 	fb_info->flags = FBINFO_DEFAULT;
 
 	fb_info->fix.type = FB_TYPE_PACKED_PIXELS;
 	fb_info->fix.visual = FB_VISUAL_TRUECOLOR;
-	fb_info->fix.line_length = ALIGN(msmfb->xres, 32) * 2;
+	fb_info->fix.line_length = ALIGN(msmfb->xres, 32) * 3;
 
 	fb_info->var.xres = msmfb->xres;
 	fb_info->var.yres = msmfb->yres;
 	fb_info->var.width = msmfb->panel->fb_data->width;
 	fb_info->var.height = msmfb->panel->fb_data->height;
-	fb_info->var.xres_virtual = msmfb->xres;
-	fb_info->var.yres_virtual = msmfb->yres * 2;
+	fb_info->var.xres_virtual = ALIGN(msmfb->xres, 32);
+	fb_info->var.yres_virtual = msmfb->yres * 3;
 	fb_info->var.bits_per_pixel = BITS_PER_PIXEL_DEF;
 	fb_info->var.accel_flags = 0;
 
@@ -1183,7 +1190,7 @@ static void setup_fb_info(struct msmfb_info *msmfb)
 
 	/* Jay add, 7/1/09' */
 #if (defined(CONFIG_USB_FUNCTION_PROJECTOR) || defined(CONFIG_USB_ANDROID_PROJECTOR))
-	msm_fb_data.xres = msmfb->xres;
+	msm_fb_data.xres = ALIGN(msmfb->xres, 32);
 	msm_fb_data.yres = msmfb->yres;
 	PR_DISP_INFO("setup_fb_info msmfb->xres %d, msmfb->yres %d\n",
 				msmfb->xres,msmfb->yres);
@@ -1195,7 +1202,7 @@ static int setup_fbmem(struct msmfb_info *msmfb, struct platform_device *pdev)
 	struct fb_info *fb = msmfb->fb;
 	struct resource *resource;
 	unsigned long size = msmfb->xres * msmfb->yres *
-		BYTES_PER_PIXEL(msmfb) * 2;
+		BYTES_PER_PIXEL(msmfb) * 3;
 	unsigned long resource_size;
 	unsigned char *fbram;
 
