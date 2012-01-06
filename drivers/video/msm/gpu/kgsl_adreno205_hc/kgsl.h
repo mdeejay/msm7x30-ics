@@ -60,6 +60,9 @@
 #define DRM_KGSL_GEM_CACHE_OP_TO_DEV	0x0001
 #define DRM_KGSL_GEM_CACHE_OP_FROM_DEV	0x0002
 
+#define KGSL_NUM_2D_DEVICES 2
+#define IDX_2D(X) ((X)-KGSL_DEVICE_2D0)
+
 /* The size of each entry in a page table */
 #define KGSL_PAGETABLE_ENTRY_SIZE  4
 

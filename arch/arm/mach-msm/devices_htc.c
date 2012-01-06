@@ -326,7 +326,6 @@ static struct platform_device msm_kgsl_3d0 = {
 	},
 };
 
-#if defined CONFIG_MSM_KGSL_2D
 static struct resource kgsl_2d0_resources[] = {
 	{
 		.name = KGSL_2D0_REG_MEMORY,
@@ -376,7 +375,6 @@ static struct platform_device msm_kgsl_2d0 = {
 	},
 };
 
-#endif
 #endif
 
 void __init msm_add_mem_devices(struct msm_pmem_setting *setting)
@@ -440,9 +438,7 @@ void __init msm_add_mem_devices(struct msm_pmem_setting *setting)
 	}
 #else
 	platform_device_register(&msm_kgsl_3d0);
-#ifdef CONFIG_MSM_KGSL_2D
 	platform_device_register(&msm_kgsl_2d0);
-#endif
 #endif
 
 #ifdef CONFIG_MSM_CAMERA_7X30
