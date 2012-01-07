@@ -3,6 +3,7 @@ ccflags-y := -Iinclude/drm
 msm_kgsl_core-$(CONFIG_GPU_MSM_KGSL) = \
 	kgsl.o \
 	kgsl_sharedmem.o \
+	kgsl_cmdstream.o \
 	kgsl_pwrctrl.o
 
 msm_kgsl_core-$(CONFIG_DEBUG_FS) += kgsl_debugfs.o
@@ -15,11 +16,6 @@ msm_adreno-$(CONFIG_GPU_MSM_KGSL) += \
 	adreno_drawctxt.o \
 	adreno_postmortem.o \
 	adreno.o \
-
-msm_kgsl_z180-$(CONFIG_MSM_KGSL_2D) += \
-	kgsl_drawctxt.o \
-	kgsl_cmdstream.o \
-	z180.o
 
 msm_adreno-$(CONFIG_DEBUG_FS) += adreno_debugfs.o
 
