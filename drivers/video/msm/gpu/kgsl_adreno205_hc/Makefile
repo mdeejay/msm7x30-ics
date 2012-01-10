@@ -21,7 +21,6 @@ msm_adreno-$(CONFIG_DEBUG_FS) += adreno_debugfs.o
 
 msm_kgsl_core-objs = $(msm_kgsl_core-y)
 msm_adreno-objs = $(msm_kgsl_adreno-y)
-msm_z180-objs = $(msm_z180-y)
 
 obj-$(CONFIG_GPU_MSM_KGSL) += \
 	msm_kgsl_core.o \

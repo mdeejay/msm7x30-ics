@@ -17,7 +17,7 @@
  */
 #include <linux/firmware.h>
 #include <linux/slab.h>
-
+#include <linux/sched.h>
 #include "kgsl.h"
 #include "adreno.h"
 #include "adreno_pm4types.h"
@@ -547,16 +547,13 @@ int kgsl_ringbuffer_close(struct kgsl_ringbuffer *rb)
 {
 	struct kgsl_yamato_device *yamato_device = KGSL_YAMATO_DEVICE(
 							rb->device);
-	if (rb->buffer_desc.hostptr)
-		kgsl_sharedmem_free(&rb->buffer_desc);
 
-	if (rb->memptrs_desc.hostptr)
+		kgsl_sharedmem_free(&rb->buffer_desc);
 		kgsl_sharedmem_free(&rb->memptrs_desc);
 
-	if (yamato_device->pfp_fw != NULL)
 		kfree(yamato_device->pfp_fw);
-	if (yamato_device->pm4_fw != NULL)
 		kfree(yamato_device->pm4_fw);
+
 	yamato_device->pfp_fw = NULL;
 	yamato_device->pm4_fw = NULL;
 
@@ -672,16 +669,15 @@ kgsl_ringbuffer_issueibcmds(struct kgsl_device_private *dev_priv,
 	unsigned int *link;
 	unsigned int *cmds;
 	unsigned int i;
-	struct kgsl_yamato_context *drawctxt = context->devctxt;
+	struct kgsl_yamato_context *drawctxt;
 
 	if (device->state & KGSL_STATE_HUNG)
 		return -EBUSY;
-	if (!(yamato_device->ringbuffer.flags & KGSL_FLAGS_STARTED) ||
-	      context == NULL)
+        if (!(yamato_device->ringbuffer.flags & KGSL_FLAGS_STARTED) ||
+                context == NULL || ibdesc == 0 || numibs == 0)
 		return -EINVAL;
 
-	BUG_ON(ibdesc == 0);
-	BUG_ON(numibs == 0);
+	drawctxt = context->devctxt;
 
 	if (drawctxt->flags & CTXT_FLAGS_GPU_HANG) {
 		KGSL_CTXT_WARN(device, "Context %p caused a gpu hang.."
@@ -863,6 +859,13 @@ int kgsl_ringbuffer_extract(struct kgsl_ringbuffer *rb,
 
 			BUG_ON((copy_rb_contents == 0) &&
 				(value == cur_context));
+		        /*
+		         * If we were copying the commands and got to this point
+		         * then we need to remove the 3 commands that appear
+		         * before KGSL_CONTEXT_TO_MEM_IDENTIFIER
+		         */
+ 	 	        if (temp_idx)
+ 		                temp_idx -= 3;
 			/* if context switches to a context that did not cause
 			 * hang then start saving the rb contents as those
 			 * commands can be executed */
@@ -879,10 +882,6 @@ int kgsl_ringbuffer_extract(struct kgsl_ringbuffer *rb,
 				temp_rb_buffer[temp_idx++] = val1;
 				temp_rb_buffer[temp_idx++] = value;
 			} else {
-				/* if temp_idx is not 0 then we do not need to
-				 * copy extra dwords indicating a kernel cmd */
-				if (temp_idx)
-					temp_idx -= 3;
 				copy_rb_contents = 0;
 			}
 		} else if (copy_rb_contents)
