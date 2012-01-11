@@ -430,6 +430,9 @@ static int kgsl_dump_fields_line(struct kgsl_device *device,
 	for (  ; num && sptr < slen; num--, l++) {
 		int ilen = strlen(l->display);
 
+               if (!l->show)
+                       continue;
+
 		if (count)
 			ilen += strlen("  | ");
 
@@ -521,7 +524,7 @@ static int kgsl_dump_yamato(struct kgsl_device *device)
 	{
 		char cmdFifo[16];
 		struct log_field lines[] = {
-			{rbbm_status &  0x000F, cmdFifo},
+			{rbbm_status &  0x001F, cmdFifo},
 			{rbbm_status &  BIT(5), "TC busy     "},
 			{rbbm_status &  BIT(8), "HIRQ pending"},
 			{rbbm_status &  BIT(9), "CPRQ pending"},

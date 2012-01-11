@@ -42,7 +42,7 @@ sysfs_show_ptpool_entries(struct kobject *kobj,
 			  struct kobj_attribute *attr,
 			  char *buf)
 {
-	return sprintf(buf, "%d\n", kgsl_driver.ptpool.entries);
+	return snprintf(buf, PAGE_SIZE, "%d\n", kgsl_driver.ptpool.entries);
 }
 
 static ssize_t
@@ -50,7 +50,8 @@ sysfs_show_ptpool_min(struct kobject *kobj,
 			 struct kobj_attribute *attr,
 			 char *buf)
 {
-	return sprintf(buf, "%d\n", kgsl_driver.ptpool.static_entries);
+       return snprintf(buf, PAGE_SIZE, "%d\n",
+                       kgsl_driver.ptpool.static_entries);
 }
 
 static ssize_t
@@ -58,7 +59,7 @@ sysfs_show_ptpool_chunks(struct kobject *kobj,
 			 struct kobj_attribute *attr,
 			 char *buf)
 {
-	return sprintf(buf, "%d\n", kgsl_driver.ptpool.chunks);
+	return snprintf(buf, PAGE_SIZE, "%d\n", kgsl_driver.ptpool.chunks);
 }
 
 static ssize_t
@@ -66,7 +67,7 @@ sysfs_show_ptpool_ptsize(struct kobject *kobj,
 			 struct kobj_attribute *attr,
 			 char *buf)
 {
-	return sprintf(buf, "%d\n", kgsl_driver.ptpool.ptsize);
+	return snprintf(buf, PAGE_SIZE, "%d\n", kgsl_driver.ptpool.ptsize);
 }
 
 static struct kobj_attribute attr_ptpool_entries = {
@@ -414,7 +415,7 @@ sysfs_show_entries(struct kobject *kobj,
 	pt = _get_pt_from_kobj(kobj);
 
 	if (pt)
-		ret += sprintf(buf, "%d\n", pt->stats.entries);
+		ret += snprintf(buf, PAGE_SIZE, "%d\n", pt->stats.entries);
 
 	mutex_unlock(&kgsl_driver.pt_mutex);
 	return ret;
@@ -432,7 +433,7 @@ sysfs_show_mapped(struct kobject *kobj,
 	pt = _get_pt_from_kobj(kobj);
 
 	if (pt)
-		ret += sprintf(buf, "%d\n", pt->stats.mapped);
+		ret += snprintf(buf, PAGE_SIZE, "%d\n", pt->stats.mapped);
 
 	mutex_unlock(&kgsl_driver.pt_mutex);
 	return ret;
@@ -450,7 +451,7 @@ sysfs_show_va_range(struct kobject *kobj,
 	pt = _get_pt_from_kobj(kobj);
 
 	if (pt)
-		ret += sprintf(buf, "0x%x\n", pt->va_range);
+		ret += snprintf(buf, PAGE_SIZE, "0x%x\n", pt->va_range);
 
 	mutex_unlock(&kgsl_driver.pt_mutex);
 	return ret;
@@ -468,7 +469,7 @@ sysfs_show_max_mapped(struct kobject *kobj,
 	pt = _get_pt_from_kobj(kobj);
 
 	if (pt)
-		ret += sprintf(buf, "%d\n", pt->stats.max_mapped);
+		ret += snprintf(buf, PAGE_SIZE, "%d\n", pt->stats.max_mapped);
 
 	mutex_unlock(&kgsl_driver.pt_mutex);
 	return ret;
@@ -486,7 +487,7 @@ sysfs_show_max_entries(struct kobject *kobj,
 	pt = _get_pt_from_kobj(kobj);
 
 	if (pt)
-		ret += sprintf(buf, "%d\n", pt->stats.max_entries);
+		ret += snprintf(buf, PAGE_SIZE, "%d\n", pt->stats.max_entries);
 
 	mutex_unlock(&kgsl_driver.pt_mutex);
 	return ret;
